@@ -3,6 +3,7 @@ import math
 import sympy
 import io
 import bson
+import zipfile
 
 
 def encrypted(msg, e, n):
@@ -13,7 +14,6 @@ def encrypted(msg, e, n):
 def decryption(c, d, n):
     m = pow(c, d, n)
     return chr(m)
- 
 
 
 def modinv(a, m):
@@ -27,10 +27,10 @@ def modinv(a, m):
 
 def encrypt():
     st.write("encrypt")
-    p = sympy.nextprime(1000)  # Choose a large prime number
-    q = sympy.nextprime(2000)  # Choose another large prime number
+    p = sympy.nextprime(1000)
+    q = sympy.nextprime(2000)
     n = p * q
-    e = 65537  # Commonly used value for e
+    e = 65537
     phi = (p - 1) * (q - 1)
 
 
@@ -44,82 +44,47 @@ def encrypt():
     d = modinv(e, phi)
 
 
-    # Message to be encrypted (converted to integer)
-    encr_list = []
-    str_msg = """ """
+    # Get a list of uploaded files
+    uploaded_files = st.file_uploader("Choose multiple files", accept_multiple_files=True)
 
 
-    #read file
-
-    uploaded_file = st.file_uploader("Choose a file")
-
-    # Check if a file was uploaded
-    if uploaded_file is not None:
-        try:
-            # Read the content of the uploaded file into a string
-            str_msg = uploaded_file.read().decode('utf-8')
-
-            # Print or use the string as needed
-            st.write("Content of the file:")
-            st.write(str_msg)
-
-        except Exception as e:
-            st.error(f"Error: {e}")
-   
-    st.write("Message data =", str_msg)
+    # Check if any files were uploaded
+    if uploaded_files:
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+            for uploaded_file in uploaded_files:
+                try:
+                    # Read the content of each uploaded file into a string
+                    file_content = uploaded_file.read().decode('utf-8')
+                    st.write(f"Content of {uploaded_file.name}:")
+                    st.write(file_content)
 
 
-    for i in str_msg:
-        c = encrypted(ord(i), e, n)
-        encr_list.append(c)
-
-    st.write(encr_list)
+                    # Encrypt the file content
+                    encr_list = [encrypted(ord(i), e, n) for i in file_content]
 
 
-   
-    decry_msg = ""
-    for i in encr_list:
-        a = decryption(i, d, n)
-        decry_msg += a
-    st.write(decry_msg)
+                    # Convert the list to a dictionary with a specific key
+                    data_dict = {"data": encr_list}
 
 
-    # Convert the list to a dictionary with a specific key
-    data_dict = {"data": encr_list}
- 
-    # Convert the dictionary to BSON format
-    bson_data = bson.dumps(data_dict)
-
-    # Create a BytesIO buffer to hold the BSON data
-    buffer = io.BytesIO(bson_data)
-
-    # Create a download button
-    st.download_button(
-        label="Download Encrypted List",
-        key="download_encrypted_list",
-        data=bson_data,
-        file_name="encrypted_list.bson",
-        mime="application/octet-stream",
-    )
-
-    loaded_data_dict = bson.loads(buffer.getvalue())
-
-    # Extract the list from the loaded dictionary
-    loaded_encr_list = loaded_data_dict.get("data", [])
-
-    # Display the loaded list (for demonstration purposes)
-    st.write("Loaded Encrypted List:")
-    st.write(loaded_encr_list)
+                    # Convert the dictionary to BSON format
+                    bson_data = bson.dumps(data_dict)
 
 
+                    # Add the encrypted content to the zip file
+                    zip_file.writestr(f"encrypted_{uploaded_file.name}.bson", bson_data)
 
 
-   
-# Call the login function
+                except Exception as e:
+                    st.error(f"Error reading {uploaded_file.name}: {e}")
 
 
-
-
-
-
-
+        # Create a download button for the zip file
+        st.download_button(
+            label="Download All Encrypted Files",
+            key="download_all_files",
+            data=zip_buffer.getvalue(),
+            file_name="encrypted_files.zip",
+            mime="application/zip",
+        )
