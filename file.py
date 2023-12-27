@@ -16,7 +16,6 @@ def insert_file_into_database(file_path, connection_params):
 
         # Create a database (if it doesn't exist)
         database_name = connection_params['dbname']
-        cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database_name)))
 
         # Switch to the newly created database
         connection.close()
@@ -43,10 +42,10 @@ def insert_file_into_database(file_path, connection_params):
         # Commit the changes
         connection.commit()
 
-        print(f"File '{file_path}' inserted into the database.")
+        st.write(f"File '{file_path}' inserted into the database.")
 
     except Exception as e:
-        print(f"Error: {e}")
+        st.write(f"Error: {e}")
 
     finally:
         # Close the cursor and connection
@@ -55,14 +54,18 @@ def insert_file_into_database(file_path, connection_params):
         if connection:
             connection.close()
 
-# Example usage:
-file_path = '/text.txt'
-connection_params = {
-    'host': 'localhost',
-    'port': 5432,
-    'user': 'postgres',
-    'password': 'postgresamdqdp1403',
-    'dbname': 'postgres'
-}
 
-insert_file_into_database(file_path, connection_params)
+
+def file():
+
+        # Example usage:
+    file_path = './text.txt'
+    connection_params = {
+        'host': 'localhost',
+        'port': 5432,
+        'user': 'postgres',
+        'password': 'postgresamdqdp1403',
+        'dbname': 'postgres'
+    }
+
+    insert_file_into_database(file_path, connection_params)

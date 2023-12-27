@@ -22,6 +22,10 @@ def render_page(page_name):
         # Import and execute code from page1.py
         from encrypt import encrypt
         encrypt()
+    if page_name == 'File':
+        # Import and execute code from page1.py
+        from file import file
+        file()
 
 
 
@@ -30,7 +34,7 @@ def main():
     st.title("SecureIt")
 
     # Create a navigation bar
-    pages = ['Login', 'Signup', 'Log Out', 'Main', 'Encrypt']
+    pages = ['Login', 'Signup', 'Log Out', 'Main', 'Encrypt', 'File']
     selected_page = st.sidebar.selectbox('Select Page', pages)
 
     # Render the selected page
