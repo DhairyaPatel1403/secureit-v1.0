@@ -10,6 +10,8 @@ import base64
 
 
 
+
+
 def encrypted_by_rsa(msg, d, n):
     c = pow(msg, d, n)
     return c
@@ -51,10 +53,13 @@ def rsa(str_msg, encr_list, p, q, n, e, d,file_type):
     for i in encr_list:
         a = decryption_by_rsa(i, e, n)
         decry_msg += a
-    st.write("decrypted message =", decry_msg)
 
-
-
+    if file_type in ['jpg', 'jpeg', 'png']:
+        reconstructed_img = string_to_image(decry_msg)
+        st.write("Decrypted Image")
+        st.image(reconstructed_img, caption="Reconstructed Image", use_column_width=True)
+    else:
+      st.write("Decrypted Message - ", decry_msg)
 
     # Convert the list to a dictionary with a specific key
     data_dict = {"data": encr_list}
@@ -85,8 +90,8 @@ def rsa(str_msg, encr_list, p, q, n, e, d,file_type):
 
 
     # Display the loaded list (for demonstration purposes)
-    st.write("Loaded Encrypted List:")
-    st.write(loaded_encr_list)
+    #st.write("Loaded Encrypted List:")
+    #st.write(loaded_encr_list)
 
 
 
@@ -237,7 +242,6 @@ def encrypt():
     #read file
 
     uploaded_file = st.file_uploader("Choose a file")
-    file_type = uploaded_file.name.split(".")[-1].lower()
     # Check if a file was uploaded
     if uploaded_file is not None:
         try:
@@ -275,7 +279,7 @@ def encrypt():
     p = sympy.nextprime(1000)  # Choose a large prime number
     q = sympy.nextprime(2000)  # Choose another large prime number
     n = p * q
-    e = 65537  # Commonly used value for e
+    e = 18908  # Commonly used value for e
 
 
     # e = 18908 will give prime key d
