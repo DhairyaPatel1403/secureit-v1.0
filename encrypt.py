@@ -5,6 +5,10 @@ import io
 import bson
 import random
 from push import file
+import requests
+from elgamal import elgamal
+from rsa import rsa
+
 
 
 def power(a, b, c):
@@ -27,171 +31,6 @@ def modinv(a, m):
         m, a = a % m, m
         x0, x1 = x1 - q * x0, x0
     return x1 + m0 if x1 < 0 else x1
-
-def encrypted_by_rsa(msg, e, n):
-    c = power(msg, e, n)
-    return c
-
-def decryption_by_rsa(msg, d, n):
-    ans = ""
-    for c in msg:
-        m = power(c,d,n)
-        ans += chr(m)  # Concatenate decrypted characters to form a string
-    return ans
-
-def rsa(str_msg, p, q, n, e, d):
-    st.header("By RSA")
-
-    encr_list = []
-
-    st.warning(f"p, q, n, e, d - {p}, {q}, {n}, {e}, {d}")
-
-    for i in str_msg:
-        c = encrypted_by_rsa(ord(i), e, n)
-        encr_list.append(c)
-
-    st.write("Encrypted message =", encr_list)
-
-    decry_msg = decryption_by_rsa(encr_list, d, n)
-    st.write("Decrypted message =", decry_msg)
-
-    # Convert the list to a dictionary with a specific key
-    data_dict = {"data": encr_list}
- 
-    # Convert the dictionary to BSON format
-    bson_data = bson.dumps(data_dict)
-
-    # Create a BytesIO buffer to hold the BSON data
-    buffer = io.BytesIO(bson_data)
-
-    # Create a download button
-    st.download_button(
-        label="Download Encrypted List",
-        key="download_encrypted_list",
-        data=bson_data,
-        file_name="encrypted_list_rsa.bson",
-        mime="application/octet-stream",
-    )
-
-    loaded_data_dict = bson.loads(buffer.getvalue())
-
-    # Extract the list from the loaded dictionary
-    loaded_encr_list = loaded_data_dict.get("data", [])
-
-    # Display the loaded list (for demonstration purposes)
-    st.write("Loaded Encrypted List:")
-    st.write(loaded_encr_list)
-
-    filename = st.text_input('Give your encrypted file a name.')
-
-    file(bson_data, filename)
-
-
-
-
-
-
-
-def gen_key_e(q):  #generate private key for sender
- 
-    key = random.randint(0, q)
-    while math.gcd(q, key) != 1:
-        key = random.randint(0, q)
- 
-    return 655 
-
-
-def encrypt_by_elgamal(msg, q, h, g):
- 
-    en_msg = []
-    en_n_message=[]
- 
-    k = gen_key_e(q) # Private key for sender
-    s = power(h, k, q)
-    p = power(g, k, q)
-     
-    for i in range(0, len(msg)):
-        en_msg.append(msg[i])
- 
-    print("g^k used : ", p)
-    print("g^ak used : ", s)
-    for i in range(0, len(en_msg)):
-        en_n_message.append(s * ord(en_msg[i]))
- 
-    return en_n_message, p
-
-def decrypt_by_elgamal(en_msg, p, key, q):
-
-    dr_msg = []
-    h = power(p, key, q)
-    st.write("h",h)
-    for i in range(0, len(en_msg)):
-        dr_msg.append(chr(int(en_msg[i]/h)))
-
-    dmsg = ''.join(dr_msg)
-         
-    return dmsg
-
-
-def elgamal(str_msg, d, q, g):
-    # key exchange using diffie hellman and elgamal algorithm
-    # st.header("ElGamal")
-
-    #in elgamal decryption, p and q are important not key
-    # here the q key becomes - g
-
-    #elgamal(str_msg, d, p, q)
-
-    st.info("Elgamal")
-
-
-    key = st.text_input("Put your key here...")
-    if(key != ""):
-        key = int(key)
-
-        h = power(g, key, q)
-
-        print("g used : ", g)
-        print("g^a used : ", h)
-
-        en_msg, p_1 = encrypt_by_elgamal(str_msg, q, h, g)
-        st.write("Keep this key as p_1_key - ", p_1)
-        print(en_msg)
-
-        p_1_inp = st.text_input("Write your p_1 key")
-        if (p_1_inp != ""):
-            p_1_inp = int(p_1_inp)
-        
-
-        if st.button("Decrypt"):
-                dr_msg = decrypt_by_elgamal(en_msg, p_1_inp, key, q)
-                dmsg = ''.join(dr_msg)
-
-                st.write("Decrypted Message - ", dmsg)
-
-
-        data_dict = {"data": en_msg}
-    
-        # Convert the dictionary to BSON format
-        bson_data = bson.dumps(data_dict)
-
-        # Create a BytesIO buffer to hold the BSON data 
-        buffer = io.BytesIO(bson_data)
-
-        # Create a download button
-        st.download_button(
-            label="Download Encrypted List",
-            key="download_encrypted_list",
-            data=bson_data,
-            file_name="encrypted_list_elgamal.bson",
-            mime="application/octet-stream",
-        )
-
-        filename = st.text_input('Give your encrypted file a name.')
-
-        file(bson_data, filename)
-
-
 
 
 
@@ -234,10 +73,10 @@ def encrypt():
 
 
 
-    p = 61813 # Choose a large prime number
-    q = 83983  # Choose another large prime number
+    p = sympy.nextprime(6257656742) # Choose a large prime number
+    q = sympy.nextprime(10000000019)  # Choose another large prime number
     n = p * q
-    e =  65537  # Commonly used value for e
+    e =  10000000019   # Commonly used value for e
 
     # e = 18908 will give prime key d
     # e = 65537 will give composite key d 
@@ -254,12 +93,14 @@ def encrypt():
 
     st.write("Private key is ", d, "e is ", e)
 
+    col13,col14 = st.columns(2)
 
-    if(sympy.isprime(d)):
-        rsa(str_msg, p, q, n, e, d)
-
+    if is_sophie_germain_prime(d):
+        st.info('RSA')
+        rsa(str_msg, d, p, q, e)
     else:
-        elgamal(str_msg, d, p, q)
+        st.info('Elgamal')
+        elgamal(str_msg, d, p, q, e)
 
 
 
