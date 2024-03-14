@@ -1,13 +1,9 @@
 import streamlit as st
+from elgamal import elgamal 
+from rsa import rsa
 import math
 import sympy
-import io
-import bson
-import random
-from push import file
-import requests
-from elgamal import elgamal
-from rsa import rsa
+
 
 
 
@@ -35,13 +31,8 @@ def modinv(a, m):
 
 
 
-
-
-def encrypt():
-    st.write("encrypt")
-
-
-
+def lockfile():
+    
     #read file
 
     str_msg=""
@@ -65,40 +56,31 @@ def encrypt():
 
 
 
+    if(uploaded_file):
+
+        p = 10009 # Choose a large prime number
+        q = 10007   # Choose another large prime number
+        n = p * q
+        e =  10000000019   # Commonly used value for e
+
+        # e = 18908 will give prime key d
+        # e = 65537 will give composite key d 
+        #not applicable after new p and q
+        
+        phi = (p - 1) * (q - 1)
 
 
-    p = sympy.randprime(10**3, 10**10) # Choose a large prime number
-    q = sympy.randprime(10**3, 10**10)   # Choose another large prime number
-    n = p * q
-    e =  10000000019   # Commonly used value for e
-
-    # e = 18908 will give prime key d
-    # e = 65537 will give composite key d 
-    #not applicable after new p and q
-    
-    phi = (p - 1) * (q - 1)
+        while math.gcd(e, phi) != 1:
+            e = sympy.nextprime(e + 1)
 
 
-    while math.gcd(e, phi) != 1:
-        e = sympy.nextprime(e + 1)
+        d = modinv(e, phi)
 
+        st.write("Private key is ", d, "e is ", e)
 
-    d = modinv(e, phi)
+        col13,col14 = st.columns(2)
 
-    st.write("Private key is ", d, "e is ", e)
-
-    col13,col14 = st.columns(2)
-
-    if (d < 462580593179):
-        st.info('RSA')
-        rsa(str_msg, d, p, q, e)
-    else:
-        st.info('Elgamal')
-        elgamal(str_msg, d, p, q, e)
-
-
-
-
-
-
-
+        if (d < 462580593179):
+            rsa(str_msg, d, p, q, e)
+        else:
+            elgamal(str_msg, d, p, q, e)

@@ -11,7 +11,7 @@ from decrypt import  main_dec_demo
 from face import detect
 from decrypt import submit_form
 from elgamal import fetch_details
-from encrypt import is_sophie_germain_prime
+
  
 def interface(): 
 
@@ -48,6 +48,7 @@ def interface():
 
                 
                 item = fetch_details(key_, 'Elgamal')
+                st.write(item)
 
                 p,p1,q,h = item.get('p'), item.get('p1'), item.get('q'), item.get('h')
                 
@@ -63,7 +64,7 @@ def interface():
                         st.warning('Important fields missing.')
                     else:
                         st.write("p1, key, q", p1, key_, q)
-                        if is_sophie_germain_prime(key_):
+                        if (key_ < 462580593179):
                             decrypted_message = fetch_rsa(35, file_name , entered_password , key_, (p*q))
                         else:
                              decrypted_message = fetch_elgamal(35, file_name , entered_password , p1, key_, p)

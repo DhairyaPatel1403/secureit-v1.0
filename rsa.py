@@ -43,8 +43,9 @@ def decryption_by_rsa(msg, d, n):
         ans += chr(m)  # Concatenate decrypted characters to form a string
     return ans
 
+
 def rsa(str_msg, d, p, q, e):
-    st.header("By RSA")
+    # st.header("By RSA")
 
     n = p*q
 
@@ -52,76 +53,109 @@ def rsa(str_msg, d, p, q, e):
 
     st.warning(f"p, q, n, e, d - {p}, {q}, {n}, {e}, {d}")
 
-    for i in str_msg:
-        c = encrypted_by_rsa(ord(i), e, n)
-        encr_list.append(c)
+    filename = st.text_input('Give your encrypted file a name.')
 
-    st.write("Encrypted message =", encr_list)
+    if filename!="":
 
-    key = st.text_input("Put your key here")
-    if key is not None:
-        key = int(key)
+        for i in str_msg:
+            c = encrypted_by_rsa(ord(i), e, n)
+            encr_list.append(c)
 
-    if st.button('Push DEtails RSA'):
-        details=[key, n]
-        add_name("RSA", details)
+        # st.write("Encrypted message =", encr_list)
 
+        key = d
 
-    if st.button('RSA'):
-    
-        item = fetch_details(key, 'RSA')
-    
-        n = item.get('n')
-
-        n = int(n)
-        decry_msg = decryption_by_rsa(encr_list, key, n)
-        st.write("Decrypted message =", decry_msg)
+        details=[key, n, filename, 'userid35']
+        pushed = add_name("RSA", details)
 
 
-        data_dict = {"data": encr_list}
-    
-        # Convert the dictionary to BSON format
-        bson_data = bson.dumps(data_dict)
+        if pushed:
+        
+            item = fetch_details('RSA', 'userid35', filename)
+        
+            n = item.get('n')
 
-        # Create a BytesIO buffer to hold the BSON data
-        buffer = io.BytesIO(bson_data)
+            n = int(n)
+            decry_msg = decryption_by_rsa(encr_list, key, n)
+            st.write("Decrypted message =", decry_msg)
 
-        # Create a download button
-        st.download_button(
-            label="Download Encrypted List",
-            key="download_encrypted_list",
-            data=bson_data,
-            file_name="encrypted_list_elgamal.bson",
-            mime="application/octet-stream",
-        )
 
-        filename = st.text_input('Give your encrypted file a name.')
+            data_dict = {"data": encr_list}
+        
+            # Convert the dictionary to BSON format
+            bson_data = bson.dumps(data_dict)
 
-        file(bson_data, filename)
+            # Create a BytesIO buffer to hold the BSON data
+            buffer = io.BytesIO(bson_data)
+
+            # Create a download button
+            st.download_button(
+                label="Download Encrypted List",
+                key="download_encrypted_list",
+                data=bson_data,
+                file_name="encrypted_list_elgamal.bson",
+                mime="application/octet-stream",
+            )
+
+            file(bson_data, filename)
 
 
 def add_name(cipher_name, details):
     url = 'http://localhost:5000/details'  # Replace with your server URL
     headers = {'Content-Type': 'application/json'}
 
-    if len(details)==5:
-        data = {'cipher_name': cipher_name, 'p1':details[0], 'p':details[1],'h':details[2], 'q':details[3], 'key':details[4]}
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        if response.status_code == 201:
-            st.success('Details added successfully')
-        else:
-            st.warning('Failed to add details')
+    # Extract parameters from details
+    key, n, filename, username = details[:4]  # Assuming details contains key, n, filename, and username
 
+    # Check if data with the same key, filename, and username already exists
+    if check_existing_key_filename_username(key, filename, username):
+        st.warning('Details with the same key, filename, and username already exist')
+        return True
+
+    # Prepare data to be sent to the server
+    data = {'cipher_name': cipher_name, 'key': key, 'n': n, 'filename': filename, 'username': username}
+
+    st.write(data)
+
+    # Push the data to the server
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    if response.status_code == 201:
+        st.success('Details added successfully')
+        return True
     else:
-        data = {'cipher_name': cipher_name, 'key':details[0], 'n':details[1]}
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        if response.status_code == 201:
-            st.success('Details added successfully')
-        else:
-            st.warning('Failed to add details')
+        st.warning('Failed to add details')
+        return False
+
+def check_existing_key_filename_username(key, filename, username):
+    url = 'http://localhost:5000/details'  # Replace with your server URL
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json().get('details', [])
+        for item in data:
+            if item.get('filename') == filename and item.get('username') == username:
+                return item
+    else:
+        st.warning('Failed to fetch existing data')
+        return None
 
 
-def fetch_details(key, cipher_name):
+def check_existing_key(key, filename, username):
+    url = 'http://localhost:5000/details'  # Replace with your server URL
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json().get('details', [])
+        for item in data:
+            if item.get('key') == key and item.get('filename') == filename and item.get('username') == username:
+                return True
+    else:
+        st.warning('Failed to fetch existing data')
+    return False
+
+
+
+def fetch_details(cipher_name, username, filename):
     url = 'http://127.0.0.1:5000/details'
 
     response = requests.get(url)
@@ -129,9 +163,9 @@ def fetch_details(key, cipher_name):
     if response.status_code == 200:
         data = response.json().get('details', [])
         for item in data:
-            if item.get('key') == key and item.get('name') == cipher_name:
+            if item.get('username') == username and item.get('name') == cipher_name  and item.get('filename') == filename:
                 return item
-        print('No details found for key', key)
+        print('No details found for file and user ', filename, username)
         return None, None, None, None
     else:
         print('Failed to fetch details. Status code:', response.status_code)

@@ -13,7 +13,6 @@ from datetime import datetime
 from elgamal import fetch_details
 from rsa import decryption_by_rsa
 
-
 def fetch_elgamal(user_id, file_name, password, p_key, key, p):
 
     loc,reg = location()
@@ -72,7 +71,7 @@ def fetch_elgamal(user_id, file_name, password, p_key, key, p):
             return None
 
 
-        
+        st.info(numbers_list)
         # st.write("FFFFF",q,p_key,key)   
         decrypted_message = decrypt_by_elgamal(numbers_list, p_key, key, p)
 

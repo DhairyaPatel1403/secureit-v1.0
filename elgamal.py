@@ -64,6 +64,7 @@ def decrypt_by_elgamal(en_msg, p_1, key, p):
     dr_msg = []
     h = power(p_1, key, p)
     st.write("h",h)
+    st.write("Message list from decryption ", en_msg)
     for i in range(0, len(en_msg)):
         dr_msg.append(chr(int(en_msg[i]/h)))
 
@@ -83,21 +84,36 @@ def elgamal(str_msg, d, p, q, e):
 
     st.info("Elgamal")
 
+    filename = st.text_input('Give your encrypted file a name.')
 
-    key = st.text_input("Put your key here...")
-    if(key != ""):
+    st.info(f"Key is - {d}" )
+
+    key = d
+
+    if(filename!=""):
         key = int(key)
+
+        st.write("The key inputed is ", key)
 
         h = power(q, key, p)
 
-
+        st.write("Key going in encryption - ", key)
         en_msg, p_1 = encrypt_by_elgamal(str_msg, p, h, q)
         st.write("Keep this key as p_1_key - ", p_1)
         print("Encrypted MEssage - ", en_msg)
 
-        if st.button('Push DEtails Elgamal'):
-            details=[p_1, p, h, q, key]
-            add_name("Elgamal", details)
+
+        details=[p_1, p, h, q, key, filename, 'userid35', en_msg]
+        success=False
+        success = add_name("Elgamal", details)
+
+
+        if success:
+            item = fetch_details(key, 'Elgamal')
+            p,p1,q,h = item.get('p'), item.get('p1'), item.get('q'), item.get('h')
+            en_msg, p_1 = encrypt_by_elgamal(str_msg, p, h, q)
+
+            st.write("Encrypted", en_msg)
 
         
         if st.button('Decrypt'):
@@ -132,45 +148,71 @@ def elgamal(str_msg, d, p, q, e):
             mime="application/octet-stream",
         )
 
-        filename = st.text_input('Give your encrypted file a name.')
-
         file(bson_data, filename)
-
 
 
 def add_name(cipher_name, details):
     url = 'http://localhost:5000/details'  # Replace with your server URL
     headers = {'Content-Type': 'application/json'}
 
-    if len(details)==5:
-        data = {'cipher_name': cipher_name, 'p1':details[0], 'p':details[1],'h':details[2], 'q':details[3], 'key':details[4]}
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        if response.status_code == 201:
-            st.success('Details added successfully')
-        else:
-            st.warning('Failed to add details')
+    st.write("Key pushed into server ", details)
 
+    # Check if the length of details is 7, indicating the presence of 'username' and 'filename'
+    if len(details) == 8:
+        # Check if details with the same username and filename already exist
+        existing_data = fetch_existing_data(details[5], details[6])  # Assuming details[5] is 'filename' and details[6] is 'username'
+        if existing_data:
+            st.warning('Details with the same username and filename already exist')
+            return False
+
+    # Construct the data to be pushed
+    if len(details) == 8:
+        data = {'cipher_name': cipher_name, 'p1': details[0], 'p': details[1], 'h': details[2], 'q': details[3],
+                'key': details[4], 'filename': details[5], 'username': details[6], 'en_list' : details[7]}
     else:
-        data = {'cipher_name': cipher_name, 'key':details[0], 'n':details[1]}
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        if response.status_code == 201:
-            st.success('Details added successfully')
-        else:
-            st.warning('Failed to add details')
+        data = {'cipher_name': cipher_name, 'key': details[0], 'n': details[1]}
 
+    # Push the data to the server
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    if response.status_code == 201:
+        st.success('Details added successfully')
+        return True
+    else:
+        st.warning('Failed to add details')
+        return False
 
-def fetch_details(key, cipher_name):
-    url = 'http://127.0.0.1:5000/details'
-
+def fetch_existing_data(filename, username):
+    url = 'http://localhost:5000/details'  # Replace with your server URL
     response = requests.get(url)
 
     if response.status_code == 200:
         data = response.json().get('details', [])
         for item in data:
-            if item.get('key') == key and item.get('name') == cipher_name:
+            if item.get('filename') == filename and item.get('username') == username:
                 return item
-        print('No details found for key', key)
-        return None, None, None, None
+    else:
+        st.warning('Failed to fetch existing data')
+        return None
+
+
+
+def fetch_details(key, cipher_name):
+    url = 'http://127.0.0.1:5000/details'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json().get('details', [])
+        if data:
+            for item in data:
+                if item.get('key') == key and item.get('name') == cipher_name:
+                    st.write('Details found for key', key)
+                    return item
+            st.warning('No details found for key')
+            return None
+        else:
+            st.warning("No data returned from the server")
+            return None
     else:
         print('Failed to fetch details. Status code:', response.status_code)
-        return None, None, None, None
+        return None
+

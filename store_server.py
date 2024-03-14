@@ -21,16 +21,20 @@ def add_details():
         h = data.get('h')
         q = data.get('q')
         key = data.get('key')
+        filename = data.get('filename')
+        username = data.get('username')
         key=int(key)
 
-        if cipher_name and p1 and p and h and q and key:
+        if cipher_name and p1 and p and h and q and key and filename and username:
             details.append({
                 'name': cipher_name,
                 'p1': p1,
                 'p': p,
                 'h': h,
                 'q': q,
-                'key':key
+                'key':key,
+                'filename' : filename,
+                'username' : username
             })
             return jsonify({'message': 'Details added successfully'}), 201
         else:
@@ -41,13 +45,17 @@ def add_details():
     elif cipher_name is not None and cipher_name=="RSA":
         n = data.get('n')
         key = data.get('key')
+        username = data.get('username')
+        filename = data.get('filename')
         key=int(key)
 
         if cipher_name and n and key:
             details.append({
                 'name': cipher_name,
                 'n':n,
-                'key':key
+                'key':key,
+                'username':username,
+                'filename':filename
             })
             return jsonify({'message': 'Details added successfully'}), 201
         else:

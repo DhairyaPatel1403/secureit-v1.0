@@ -213,10 +213,14 @@ if __name__ == "__main__":
 
 
 
-    p = 6229656791 # Choose a large prime number
-    q = 10000000019  # Choose another large prime number
+    p = 999959 # Choose a large prime number
+    q = 999961  # Choose another large prime number
     n = p * q
     e =  10000000019   # Commonly used value for e
+         
+
+
+    # 6 digit p and q safe limit RSA
 
     # e = 18908 will give prime key d
     # e = 65537 will give composite key d 
