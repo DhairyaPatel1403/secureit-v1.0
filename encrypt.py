@@ -54,9 +54,9 @@ def encrypt():
             # Read the content of the uploaded file into a string
             str_msg = uploaded_file.read().decode('utf-8')
 
-            # Print or use the string as needed
-            st.write("Content of the file:")
-            st.write(str_msg)
+            # # Print or use the string as needed
+            # st.write("Content of the file:")
+            # st.write(str_msg)
 
         except Exception as e:
             st.error(f"Error: {e}")
@@ -85,7 +85,7 @@ def encrypt():
 
     d = modinv(e, phi)
 
-    st.write("Private key is ", d, "e is ", e)
+    # st.write("Private key is ", d, "e is ", e)
 
     col13,col14 = st.columns(2)
 

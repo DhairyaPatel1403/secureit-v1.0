@@ -12,8 +12,11 @@ from location import location
 from datetime import datetime
 from elgamal import fetch_details
 from rsa import decryption_by_rsa
+from fetch_id import get_user_id
 
 def fetch_elgamal(user_id, file_name, password, p_key, key, p):
+
+    username = st.session_state['username']
 
     loc,reg = location()
 
@@ -79,7 +82,7 @@ def fetch_elgamal(user_id, file_name, password, p_key, key, p):
 
         # Insert into history table
         cursor.execute("INSERT INTO history (filename, username, region, time_, lat, lon) VALUES (%s, %s, %s, %s, %s, %s)",
-                       (file_name, "userid35", reg, current_time, lat, lon))
+                       (file_name, username, reg, current_time, lat, lon))
         connection.commit()
 
 
@@ -98,6 +101,7 @@ def fetch_elgamal(user_id, file_name, password, p_key, key, p):
 
 
 def fetch_rsa(user_id, file_name, password, key, n):
+    username = st.session_state['username']
 
     loc,reg = location()
 
@@ -163,7 +167,7 @@ def fetch_rsa(user_id, file_name, password, key, n):
 
         # Insert into history table
         cursor.execute("INSERT INTO history (filename, username, region, time_, lat, lon) VALUES (%s, %s, %s, %s, %s, %s)",
-                       (file_name, "userid35", reg, current_time, lat, lon))
+                       (file_name, username, reg, current_time, lat, lon))
         connection.commit()
 
 

@@ -4,6 +4,8 @@ import requests
 import socket
 import platform
 import netifaces
+import json
+from logout import logout
 
 # Function to render different pages
 def render_page(page_name):
@@ -19,10 +21,6 @@ def render_page(page_name):
         # Import and execute code from page1.py
         from logout import logout
         logout()
-    if page_name == 'Interface':
-        # Import and execute code from page1.py
-        from interface import interface
-        interface()
     if page_name == 'History':
         # Import and execute code from page1.py
         from history import history
@@ -42,10 +40,14 @@ def render_page(page_name):
 def main():
 
     if 'userip' not in st.session_state:
-        ## getting the hostname by socket.gethostname() method
-        hostname = socket.gethostname()
-        ## getting the IP address using socket.gethostbyname() method
-        ip_address = socket.gethostbyname(hostname)
+        response = requests.get("https://ipgeolocation.abstractapi.com/v1/?api_key=1a7ac43f33da4a8dbb17097848197588&ip_address=")
+        st.write(response.status_code)
+        st.write(response.content)
+        response_json = json.loads(response.content)
+
+        # Extracting the ip_address
+        ip_address = response_json["ip_address"]
+
 
         user_ip = ip_address
         user_device = platform.node()
@@ -64,12 +66,18 @@ def main():
         else:
             pass
 
+    col1, col2 = st.columns(2)
 
-    st.title(''' Secure:orange[It] ''')
+    with col1:
+        st.title(''' Secure:orange[It] ''')
+    with col2:
+        if st.session_state.get('username'):
+            logout()
+
 
 
     # Create a navigation bar
-    pages = ['Login', 'Signup', 'Log Out', 'Main', 'Encrypt', 'File', 'Interface', 'Decrypt', 'Face', 'History', 'LockFile', 'UnlockFile']
+    pages = ['Login', 'Signup', 'Log Out', 'History', 'LockFile', 'UnlockFile']
     selected_page = st.sidebar.selectbox('Select Page', pages)
 
     # Render the selected page

@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import requests
 import face_recognition
 import json
+from PIL import Image
+
 
 with open('face_data.json', 'r') as file:
     data = json.load(file)
@@ -32,17 +34,27 @@ known_face_encodings = [entry['encoding'] for entry in data['known_faces']]
 
 
 
-# def memorize_face(name, image_path):
-#     img = face_recognition.load_image_file(image_path)
-#     face_encodings = face_recognition.face_encodings(img)
 
-#     if len(face_encodings) > 0:
-#         encoding = face_encodings[0]
-#         # print(encoding.tolist())
-#         known_face_encodings.append(encoding)
-#         known_face_names.append(name)
-#     else:
-#         st.warning(f"No face found in the image: {image_path}")
+def memorize_face(name, uploaded_image):
+    st.write("Entering memorization...")
+    if uploaded_image is not None:
+        # Convert the PIL image to a NumPy array
+        img_array = face_recognition.load_image_file(uploaded_image)
+        img = Image.fromarray(img_array)
+        
+        face_encodings = face_recognition.face_encodings(img_array)
+
+
+        if len(face_encodings) > 0:
+            encoding = face_encodings[0]
+            # Assuming known_face_encodings and known_face_names are global lists
+            known_face_encodings.append(encoding)
+            known_face_names.append(name)
+            st.success(f"Face memorized for {name}")
+        else:
+            st.warning("No face found in the uploaded image.")
+    else:
+        st.warning("Please upload an image.")
 
 
 def recognize_face(face_encoding, img):

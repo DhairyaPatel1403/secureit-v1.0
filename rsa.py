@@ -45,13 +45,15 @@ def decryption_by_rsa(msg, d, n):
 
 
 def rsa(str_msg, d, p, q, e):
+
+    username = st.session_state['username']
     # st.header("By RSA")
 
     n = p*q
 
     encr_list = []
 
-    st.warning(f"p, q, n, e, d - {p}, {q}, {n}, {e}, {d}")
+    # st.warning(f"p, q, n, e, d - {p}, {q}, {n}, {e}, {d}")
 
     filename = st.text_input('Give your encrypted file a name.')
 
@@ -65,13 +67,13 @@ def rsa(str_msg, d, p, q, e):
 
         key = d
 
-        details=[key, n, filename, 'userid35']
+        details=[key, n, filename, username]
         pushed = add_name("RSA", details)
 
 
         if pushed:
         
-            item = fetch_details('RSA', 'userid35', filename)
+            item = fetch_details('RSA', username, filename)
         
             n = item.get('n')
 

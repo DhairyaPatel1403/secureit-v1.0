@@ -9,6 +9,7 @@ import json
 from fetch import fetch_elgamal
 from face import detect
 from fetch import fetch_rsa
+from fetch_id import get_user_id
 
 
 def fetch_details(filename, username, cipher_name):
@@ -16,7 +17,9 @@ def fetch_details(filename, username, cipher_name):
     response = requests.get(url)
 
     if response.status_code == 200:
+        st.write(filename, username, cipher_name)
         data = response.json().get('details', [])
+        st.write(data)
         if data:
             for item in data:
                 if item.get('name') == cipher_name and item.get('filename') == filename and item.get('username') == username:
@@ -33,6 +36,8 @@ def fetch_details(filename, username, cipher_name):
 
 def unlockfile():
 
+    username = st.session_state['username']
+
     filename = st.text_input('Enter File Name')
     password = st.text_input('Enter Password')
 
@@ -43,11 +48,17 @@ def unlockfile():
 
         name = detect()
 
-        if name=="Dhairya" or name=="Nirav":
+        username = st.session_state['username']
+
+        userid = get_user_id(username)
+
+        if name==username:
+
+            st.info(username)
 
             if (key < 462580593179):
 
-                item = fetch_details(filename, 'userid35', 'RSA')
+                item = fetch_details(filename, username, 'RSA')
 
                 st.info(item)
 
@@ -55,12 +66,12 @@ def unlockfile():
                 key=int(key)
                 n=int(n)
 
-                decrypted_msg = fetch_rsa(35, filename, password, key, n)
+                decrypted_msg = fetch_rsa(userid, filename, password, key, n)
 
                 st.write("Decrypted Message", decrypted_msg)
 
             else:
-                item = fetch_details(filename, 'userid35', 'Elgamal')
+                item = fetch_details(filename, username, 'Elgamal')
 
                 st.info(item)
 
@@ -69,7 +80,7 @@ def unlockfile():
                 p = int(p)
                 p1 = int(p1)
 
-                decrypted_msg = fetch_elgamal(35, filename, password, p1, key, p)
+                decrypted_msg = fetch_elgamal(userid, filename, password, p1, key, p)
 
                 st.write("Decrypted message ",decrypted_msg)
 

@@ -74,6 +74,8 @@ def decrypt_by_elgamal(en_msg, p_1, key, p):
 
 
 def elgamal(str_msg, d, p, q, e):
+
+    username = st.session_state['username']
     # key exchange using diffie hellman and elgamal algorithm
     # st.header("ElGamal")
 
@@ -103,7 +105,7 @@ def elgamal(str_msg, d, p, q, e):
         print("Encrypted MEssage - ", en_msg)
 
 
-        details=[p_1, p, h, q, key, filename, 'userid35', en_msg]
+        details=[p_1, p, h, q, key, filename, username, en_msg]
         success=False
         success = add_name("Elgamal", details)
 

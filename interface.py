@@ -11,6 +11,7 @@ from decrypt import  main_dec_demo
 from face import detect
 from decrypt import submit_form
 from elgamal import fetch_details
+from fetch_id import get_user_id
 
  
 def interface(): 
@@ -64,10 +65,17 @@ def interface():
                         st.warning('Important fields missing.')
                     else:
                         st.write("p1, key, q", p1, key_, q)
+
+                        username = st.session_state['username']
+
+                        userid = get_user_id(username)
+
+                        
+
                         if (key_ < 462580593179):
-                            decrypted_message = fetch_rsa(35, file_name , entered_password , key_, (p*q))
+                            decrypted_message = fetch_rsa(userid, file_name , entered_password , key_, (p*q))
                         else:
-                             decrypted_message = fetch_elgamal(35, file_name , entered_password , p1, key_, p)
+                             decrypted_message = fetch_elgamal(userid, file_name , entered_password , p1, key_, p)
 
                         if name=="Dhairya" or name=="Nirav":
                             st.success(decrypted_message)

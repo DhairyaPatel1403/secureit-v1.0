@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import streamlit as st
 import uuid
-
+from fetch_id import get_user_id
 
 
 def insert_file_into_database(file_content, filename, connection_params, password, list_uuid):
@@ -26,12 +26,14 @@ def insert_file_into_database(file_content, filename, connection_params, passwor
                 user_id INT
             )
         """)
+        username = st.session_state['username']
 
+        userid = get_user_id(username)
 
         
 
         # Check if the file with the same filename and user_id already exists
-        cursor.execute("SELECT id FROM files WHERE filename = %s AND user_id = %s", (filename, 35))
+        cursor.execute("SELECT id FROM files WHERE filename = %s AND user_id = %s", (filename, userid))
         existing_file_id = cursor.fetchone()
 
         if existing_file_id:
@@ -51,10 +53,10 @@ def insert_file_into_database(file_content, filename, connection_params, passwor
 
         # Insert the file content into the database
         cursor.execute("INSERT INTO files (filename, file_content, password, user_id) VALUES (%s, %s, %s, %s)",
-                       (filename, file_content, password, 35))
+                       (filename, file_content, password, userid))
 
         # Get the ID of the inserted file
-        cursor.execute("SELECT id FROM files WHERE filename = %s AND user_id = %s", (filename, 35))
+        cursor.execute("SELECT id FROM files WHERE filename = %s AND user_id = %s", (filename, userid))
         file_id = cursor.fetchone()[0]
 
         # Insert UUIDs into the uuids table
