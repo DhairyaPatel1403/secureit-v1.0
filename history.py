@@ -4,6 +4,8 @@ import pandas as pd
 
 def history():
 
+    username = st.session_state['username']
+
     connection_params = {
         'host': 'localhost',
         'port': 5432,
@@ -20,7 +22,7 @@ def history():
         cursor = connection.cursor()
 
         # Fetch data from the history table
-        cursor.execute("SELECT * FROM history")
+        cursor.execute("SELECT * FROM history WHERE name = %s", (username,))
         rows = cursor.fetchall()
 
         if not rows:
