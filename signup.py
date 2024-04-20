@@ -12,15 +12,14 @@ def signup():
         email = st.text_input('Enter your email')
         phone_number = st.text_input('Your Phone Number')
 
-        checkbox_val = st.checkbox("Form checkbox")
+        checkbox_val = st.checkbox("I agree to allow Secureit for accessing only the encrypted version of my data.")
 
 
         uploaded_image = st.camera_input("Choose a picture for face detection")
         if uploaded_image:
                     st.write("Uploading face to server...")
                     memorize_face(name, uploaded_image)
-        else:
-                    st.warning("Upload Image for face detection")
+
         # Every form must have a submit button.
         submitted = st.form_submit_button("Submit")
         if submitted:

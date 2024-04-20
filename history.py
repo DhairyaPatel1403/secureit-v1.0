@@ -22,7 +22,7 @@ def history():
         cursor = connection.cursor()
 
         # Fetch data from the history table
-        cursor.execute("SELECT * FROM history WHERE name = %s", (username,))
+        cursor.execute("SELECT * FROM history WHERE username = %s", (username,))
         rows = cursor.fetchall()
 
         if not rows:

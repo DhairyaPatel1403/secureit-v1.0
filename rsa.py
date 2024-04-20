@@ -37,11 +37,14 @@ def encrypted_by_rsa(msg, e, n):
     return c
 
 def decryption_by_rsa(msg, d, n):
-    ans = ""
-    for c in msg:
-        m = power(c,d,n)
-        ans += chr(m)  # Concatenate decrypted characters to form a string
-    return ans
+
+        ans = ""
+        for c in msg:
+            m = power(c,d,n)
+            ans += chr(m)  # Concatenate decrypted characters to form a string
+        return ans
+
+        
 
 
 def rsa(str_msg, d, p, q, e):
@@ -59,9 +62,14 @@ def rsa(str_msg, d, p, q, e):
 
     if filename!="":
 
+
+
         for i in str_msg:
-            c = encrypted_by_rsa(ord(i), e, n)
-            encr_list.append(c)
+                c = encrypted_by_rsa(ord(i), e, n)
+                encr_list.append(c)
+
+
+
 
         # st.write("Encrypted message =", encr_list)
 
@@ -79,7 +87,7 @@ def rsa(str_msg, d, p, q, e):
 
             n = int(n)
             decry_msg = decryption_by_rsa(encr_list, key, n)
-            st.write("Decrypted message =", decry_msg)
+            # st.write("Decrypted message =", decry_msg)
 
 
             data_dict = {"data": encr_list}
@@ -117,7 +125,7 @@ def add_name(cipher_name, details):
     # Prepare data to be sent to the server
     data = {'cipher_name': cipher_name, 'key': key, 'n': n, 'filename': filename, 'username': username}
 
-    st.write(data)
+    # st.write(data)
 
     # Push the data to the server
     response = requests.post(url, headers=headers, data=json.dumps(data))

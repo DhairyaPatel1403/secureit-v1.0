@@ -66,22 +66,7 @@ def recognize_face(face_encoding, img):
         name = known_face_names[first_match_index]
     
     else:
-        st.warning("The face is not recognized, if you want it to identify as a new person, write their name.")
-        given_name = st.text_input("Write the name")
-
-        if given_name != "":
-            name=given_name
-
-            face_encodings = face_recognition.face_encodings(img)
-
-            if len(face_encodings) > 0:
-                encoding = face_encodings[0]
-                new_entry = {'name': given_name, 'encoding': encoding.tolist()}
-                data['known_faces'].append(new_entry)
-
-                # Write the updated data back to the JSON file
-                with open('face_data.json', 'w') as file:
-                    json.dump(data, file, indent=2)
+        st.warning("Face not matched")
 
     return name
 

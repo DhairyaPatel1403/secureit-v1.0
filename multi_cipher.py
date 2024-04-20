@@ -64,7 +64,7 @@ def decrypt_by_elgamal(en_msg, p_1, key, p):
 
     dr_msg = []
     h = power(p_1, key, p)
-    st.write("h",h)
+    # st.write("h",h)
     for i in range(0, len(en_msg)):
         dr_msg.append(chr(int(en_msg[i]/h)))
 
@@ -93,7 +93,7 @@ def elgamal(str_msg, d, p, q, e):
 
 
         en_msg, p_1 = encrypt_by_elgamal(str_msg, p, h, q)
-        st.write("Keep this key as p_1_key - ", p_1)
+        # st.write("Keep this key as p_1_key - ", p_1)
         print("Encrypted MEssage - ", en_msg)
 
         if st.button('Push DEtails Elgamal'):
@@ -113,7 +113,7 @@ def elgamal(str_msg, d, p, q, e):
             
             dr_msg = decrypt_by_elgamal(en_msg, p1, key, p)
             dmsg = ''.join(dr_msg)
-            st.write("Decrypted Message - ", dmsg)
+            # st.write("Decrypted Message - ", dmsg)
 
 
 
@@ -146,7 +146,7 @@ def rsa(str_msg, d, p, q, e):
         c = encrypted_by_rsa(ord(i), e, n)
         encr_list.append(c)
 
-    st.write("Encrypted message =", encr_list)
+    # st.write("Encrypted message =", encr_list)
 
     key = st.text_input("Put your key here")
     if key is not None:
@@ -165,7 +165,7 @@ def rsa(str_msg, d, p, q, e):
 
         n = int(n)
         decry_msg = decryption_by_rsa(encr_list, key, n)
-        st.write("Decrypted message =", decry_msg)
+        # st.write("Decrypted message =", decry_msg)
 
 
 

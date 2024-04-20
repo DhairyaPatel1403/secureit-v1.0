@@ -76,7 +76,7 @@ def lockfile():
 
         d = modinv(e, phi)
 
-        st.write("Private key is ", d, "e is ", e)
+        # st.write("Private key is ", d, "e is ", e)
 
         col13,col14 = st.columns(2)
 

@@ -140,6 +140,8 @@ def fetch_rsa(user_id, file_name, password, key, n):
             st.warning("File not found with the specified criteria.")
             return None
 
+        
+
         # Convert the BSON data to a list of numbers
         file_content_buffer = io.BytesIO(file_content_bson[0])
         numbers_list = bson.loads(file_content_buffer.read())
@@ -160,8 +162,9 @@ def fetch_rsa(user_id, file_name, password, key, n):
 
 
         
-        # st.write("FFFFF",q,p_key,key)   
         decrypted_message = decryption_by_rsa(numbers_list, key, n)
+        st.write("generated")
+
 
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

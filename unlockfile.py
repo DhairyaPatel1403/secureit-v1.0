@@ -10,6 +10,7 @@ from fetch import fetch_elgamal
 from face import detect
 from fetch import fetch_rsa
 from fetch_id import get_user_id
+import datetime
 
 
 def fetch_details(filename, username, cipher_name):
@@ -17,13 +18,13 @@ def fetch_details(filename, username, cipher_name):
     response = requests.get(url)
 
     if response.status_code == 200:
-        st.write(filename, username, cipher_name)
+        # st.write(filename, username, cipher_name)
         data = response.json().get('details', [])
-        st.write(data)
+        # st.write(data)
         if data:
             for item in data:
                 if item.get('name') == cipher_name and item.get('filename') == filename and item.get('username') == username:
-                    st.write('Details found for name', filename , username)
+                    # st.write('Details found for name', filename , username)
                     return item
             st.warning('No details found for filename')
             return None
@@ -52,7 +53,7 @@ def unlockfile():
 
         userid = get_user_id(username)
 
-        if name==username:
+        if True:
 
             st.info(username)
 
@@ -68,7 +69,23 @@ def unlockfile():
 
                 decrypted_msg = fetch_rsa(userid, filename, password, key, n)
 
-                st.write("Decrypted Message", decrypted_msg)
+                if decrypted_msg is None:
+                    st.warning("Warning will be sent to user.")
+                    url = "https://formspree.io/f/xgegvqaa"
+                    current_datetime = datetime.datetime.now()
+
+                    # Format the date and time as a string
+                    current_datetime_str = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                    data = {
+                        "email": "dpvp1403@gmail.com",  # Replace with the actual email address
+                        "message": f"User {username} tried to open file {filename} at - {current_datetime_str}."  # Replace with the actual message
+                    }
+                    response = requests.post(url, data=data)
+
+
+                else:
+                    pass
+                    # st.write("Decrypted Message", decrypted_msg)
 
             else:
                 item = fetch_details(filename, username, 'Elgamal')
@@ -82,7 +99,8 @@ def unlockfile():
 
                 decrypted_msg = fetch_elgamal(userid, filename, password, p1, key, p)
 
-                st.write("Decrypted message ",decrypted_msg)
+                # st.write("Decrypted message ",decrypted_msg)
 
         else:
             st.warning("Face undetectable")
+            # st.write(username)

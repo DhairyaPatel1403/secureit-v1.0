@@ -34,6 +34,14 @@ def render_page(page_name):
         from unlockfile import unlockfile
         unlockfile()
 
+    if page_name == 'LockImage':
+        from lockimg import lockimg
+        lockimg()
+
+    if page_name == 'UnlockImage':
+        from unlockimg import unlockimg
+        unlockimg()
+
 
 
 # Streamlit app
@@ -77,7 +85,7 @@ def main():
 
 
     # Create a navigation bar
-    pages = ['Login', 'Signup', 'Log Out', 'History', 'LockFile', 'UnlockFile']
+    pages = ['Login', 'Signup', 'Log Out', 'History', 'LockFile', 'UnlockFile', 'LockImage', 'UnlockImage']
     selected_page = st.sidebar.selectbox('Select Page', pages)
 
     # Render the selected page

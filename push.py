@@ -123,6 +123,6 @@ def file(uploaded_file_buffer, filename):  # Pass BytesIO buffer instead of uplo
         # Use the provided BytesIO buffer directly
         insert_file_into_database(uploaded_file_buffer, filename, connection_params, password, list_uuid)
 
-    if st.button('UUID'):
-        st.write("System UUID:", system_uuid)
+    # if st.button('UUID'):
+    #     st.write("System UUID:", system_uuid)
 
